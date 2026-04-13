@@ -20,6 +20,10 @@ struct DigipalPlayerApp: App {
                 }
                 .keyboardShortcut("S", modifiers: [.command, .shift])
 
+                Button("Reset to Auto-Discover") {
+                    appState.resetToAutoDiscover()
+                }
+
                 Button("Toggle Fullscreen") {
                     toggleFullscreen()
                 }

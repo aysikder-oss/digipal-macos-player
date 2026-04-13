@@ -48,6 +48,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         menu.addItem(NSMenuItem(title: "Show Player", action: #selector(showPlayer), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Setup Server...", action: #selector(showSetup), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Reset to Auto-Discover", action: #selector(resetToAutoDiscover), keyEquivalent: ""))
+
+        let modeItem = NSMenuItem(title: "Mode: Cloud", action: nil, keyEquivalent: "")
+        modeItem.tag = 102
+        menu.addItem(modeItem)
+
         menu.addItem(NSMenuItem.separator())
 
         let kioskItem = NSMenuItem(title: "Kiosk Mode", action: #selector(toggleKiosk), keyEquivalent: "")
@@ -71,6 +77,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     @objc private func showSetup() {
         AppState.shared.showSetup = true
+        showPlayer()
+    }
+
+    @objc private func resetToAutoDiscover() {
+        AppState.shared.resetToAutoDiscover()
         showPlayer()
     }
 
@@ -163,6 +174,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             item.title = "Connected: \(shortUrl)"
         } else {
             item.title = "Status: Reconnecting..."
+        }
+
+        if let modeItem = menu.item(withTag: 102) {
+            let mode = AppState.shared.connectionMode
+            let cloudStatus = CloudChannel.shared.isConnected ? " + Cloud Channel" : ""
+            modeItem.title = "Mode: \(mode)\(cloudStatus)"
         }
     }
 

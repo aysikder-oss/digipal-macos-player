@@ -108,6 +108,17 @@ struct SetupView: View {
                         }
                     }
 
+                    if appState.manualOverride {
+                        Button(action: {
+                            appState.resetToAutoDiscover()
+                        }) {
+                            Text("Reset to Auto-Discover")
+                                .font(.system(size: 13))
+                                .foregroundColor(Color(red: 0.231, green: 0.510, blue: 0.965))
+                        }
+                        .buttonStyle(.plain)
+                    }
+
                     Text("You can change this later with \u{2318}\u{21E7}S")
                         .font(.system(size: 11))
                         .foregroundColor(Color(red: 0.396, green: 0.455, blue: 0.525))
@@ -157,17 +168,26 @@ struct SetupView: View {
             await MainActor.run {
                 isValidating = false
                 if isReachable {
-                    appState.serverUrl = url
-                    appState.showSetup = false
+                    appState.connectTo(url: url, mode: isLocalUrl(url) ? "LOCAL" : "CLOUD", manual: true)
                 } else {
                     errorMessage = "Could not reach server. Connecting anyway..."
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        appState.serverUrl = url
-                        appState.showSetup = false
+                        appState.connectTo(url: url, mode: isLocalUrl(url) ? "LOCAL" : "CLOUD", manual: true)
                     }
                 }
             }
         }
+    }
+
+    private func isLocalUrl(_ url: String) -> Bool {
+        guard let components = URLComponents(string: url),
+              let host = components.host else { return false }
+        return host == "localhost" ||
+            host == "127.0.0.1" ||
+            host.hasPrefix("192.168.") ||
+            host.hasPrefix("10.") ||
+            host.hasPrefix("172.") ||
+            host.hasSuffix(".local")
     }
 
     private func validateServer(url: String) async -> Bool {
